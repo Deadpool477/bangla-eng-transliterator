@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Bangla to Roman Transliterator</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Bengali:wght@400;600&family=Fraunces:opsz,wght@9..144,600&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#eef3f0;--panel:#fff;--ink:#10241f;--mute:#5a6f68;--line:#cfdbd5;--acc:#0f6b5c;--accink:#fff;--mar:#f2c14e;--soft:#dcebe5;color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media(prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0c1513;--panel:#14201d;--ink:#e6f1ed;--mute:#93aaa2;--line:#27403a;--acc:#5fd0b8;--accink:#06201a;--mar:#e0b13f;--soft:#1b2e29;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#0c1513;--panel:#14201d;--ink:#e6f1ed;--mute:#93aaa2;--line:#27403a;--acc:#5fd0b8;--accink:#06201a;--mar:#e0b13f;--soft:#1b2e29;color-scheme:dark}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*,*:before,*:after{box-sizing:inherit}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.55 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+.bn{font-family:"Noto Sans Bengali","Nirmala UI","Vrinda",sans-serif}
+main{max-width:980px;margin:0 auto;padding:28px 16px 48px}
+h1{font:600 clamp(28px,5vw,40px)/1.1 Fraunces,Georgia,serif;margin:0 0 6px;letter-spacing:-.01em}
+h1 span{font-family:"Noto Sans Bengali",sans-serif;color:var(--acc)}
+.sub{color:var(--mute);margin:0 0 20px;max-width:60ch}
+.bar{display:flex;flex-wrap:wrap;gap:12px 20px;align-items:center;margin-bottom:14px}
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:999px;overflow:hidden;background:var(--panel)}
+.seg button{border:0;background:none;color:var(--ink);padding:8px 14px;font:inherit;font-size:14px;cursor:pointer}
+.seg button[aria-pressed=true]{background:var(--acc);color:var(--accink)}
+label.chk{display:flex;gap:8px;align-items:center;font-size:14px;color:var(--mute);cursor:pointer}
+.io{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+@media(max-width:720px){.io{grid-template-columns:1fr}}
+.pane{background:var(--panel);border:1px solid var(--line);border-radius:14px;display:flex;flex-direction:column;min-height:210px}
+.ph{display:flex;justify-content:space-between;align-items:center;padding:10px 14px 0;color:var(--mute);font-size:14px}
+textarea,.out{flex:1;width:100%;border:0;background:none;color:var(--ink);padding:10px 14px 14px;font-size:21px;line-height:1.6;resize:vertical;min-height:170px;outline:none;white-space:pre-wrap;word-break:break-word}
+.out{font-size:21px}
+.pane:focus-within{border-color:var(--acc);box-shadow:0 0 0 3px var(--soft)}
+button.act{border:1px solid var(--line);background:var(--panel);color:var(--ink);border-radius:8px;padding:4px 10px;font:inherit;font-size:13px;cursor:pointer}
+button:focus-visible{outline:2px solid var(--acc);outline-offset:2px}
+.ex{display:flex;flex-wrap:wrap;gap:8px;margin:14px 0 6px}
+.ex button{border:1px solid var(--line);background:var(--panel);color:var(--ink);border-radius:999px;padding:6px 14px;font-size:16px;cursor:pointer}
+.ex button:hover,.cell:hover{border-color:var(--acc)}
+h2{font:600 22px/1.2 Fraunces,Georgia,serif;margin:34px 0 4px}
+.note{color:var(--mute);font-size:14px;margin:0 0 12px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(92px,1fr));gap:8px}
+.cell{border:1px solid var(--line);background:var(--panel);color:var(--ink);border-radius:10px;padding:8px 6px;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:0;font:inherit}
+.cell .bn{font-size:26px;line-height:1.3}
+.cell b{color:var(--acc);font-size:15px}
+.cell i{font-style:normal;color:var(--mute);font-size:11px;text-align:center}
+.wide{grid-template-columns:repeat(auto-fill,minmax(150px,1fr))}
+ul.rules{padding-left:20px;margin:8px 0;max-width:72ch}
+ul.rules li{margin:6px 0}
+mark{background:var(--mar);color:#1d1600;border-radius:4px;padding:0 4px}
+</style></head><body><main>
+<h1>Bangla to Roman <span class="bn">বাংলা</span></h1>
+<p class="sub">Type or paste Bangla and read it back the way it sounds, in the same Roman spelling you'd use for Hindi: <b>a</b> / <b>aa</b>, <b>i</b> / <b>ee</b>, <b>u</b> / <b>oo</b>.</p>
+
+<div class="bar">
+ <div class="seg" role="group" aria-label="Style">
+  <button id="mBn" aria-pressed="true">Pronunciation (অ = o)</button>
+  <button id="mHi" aria-pressed="false">Hindi-style (অ = a)</button>
+ </div>
+ <label class="chk"><input type="checkbox" id="retro" checked> Dotted letters (ṭ ḍ ṇ ś ṣ ṅ ñ ṛ)</label>
+</div>
+
+<div class="io">
+ <div class="pane"><div class="ph"><span>Bangla</span><button class="act" id="clr">Clear</button></div>
+  <textarea id="inp" class="bn" lang="bn" placeholder="এখানে বাংলা লিখুন…" spellcheck="false"></textarea></div>
+ <div class="pane"><div class="ph"><span>Roman</span><button class="act" id="cp">Copy</button></div>
+  <div id="out" class="out" aria-live="polite"></div></div>
+</div>
+<div class="ex" id="ex"></div>
+
+<h2>Vowels</h2>
+<p class="note">Tap any letter to add it to the box above.</p>
+<div class="grid wide" id="vow"></div>
+<h2>Vowel signs on <span class="bn">ক</span></h2>
+<div class="grid" id="mat"></div>
+<h2>Consonants</h2>
+<div class="grid" id="con"></div>
+<h2>Conjuncts and sound changes</h2>
+<p class="note">Bangla is not read letter by letter, so the page applies the common spoken rules.</p>
+<div class="grid wide" id="conj"></div>
+<ul class="rules">
+ <li>The inherent vowel of <span class="bn">অ</span> is <mark>o</mark> in Bangla (<span class="bn">কলম</span> = kolom). Switch to Hindi-style to see <mark>a</mark> instead (kalam).</li>
+ <li>A consonant at the end of a word is silent-vowelled: <span class="bn">নাম</span> = naam. A word ending in a conjunct keeps the vowel: <span class="bn">বন্ধ</span> = bondho.</li>
+ <li><span class="bn">্য</span> and <span class="bn">্ব</span> after a consonant double it: <span class="bn">সত্য</span> = shotto, <span class="bn">বিশ্ব</span> = bissho. At the start of a word <span class="bn">্য</span> sounds like <i>ae</i>.</li>
+ <li><span class="bn">স</span> is <i>s</i> before <span class="bn">ক খ ট ঠ ত থ প ফ</span> (<span class="bn">স্টেশন</span> = steshon) and <i>sh</i> everywhere else. With dotted letters on, <span class="bn">শ</span> is ś and <span class="bn">ষ</span> is ṣ, while <span class="bn">স</span> stays sh or s by sound.</li>
+ <li><span class="bn">র্য</span> and <span class="bn">র্ব</span> do not double (<span class="bn">সূর্য</span> = shoorjo), <span class="bn">হ্ন হ্ম হ্ল</span> swap to nh, mh, lh (<span class="bn">চিহ্ন</span> = chinho), and <span class="bn">ত্ম দ্ম গ্ম</span> double the first letter (<span class="bn">পদ্ম</span> = poddo).</li>
+ <li>There is only a tiny exception list (<span class="bn">শুভ</span> = shubho), not a dictionary, so a few words with irregular vowel colouring (for example <span class="bn">এক</span> said as <i>aek</i>) will come out in their regular form.</li>
+</ul>
+</main>
+<script>
+const $=s=>document.querySelector(s),S={mode:'bn',retro:true};
+const VOW={'অ':'o','আ':'aa','ই':'i','ঈ':'ee','উ':'u','ঊ':'oo','ঋ':'ri','এ':'e','ঐ':'oi','ও':'o','ঔ':'ou'};
+const MAT={'\u09BE':'aa','\u09BF':'i','\u09C0':'ee','\u09C1':'u','\u09C2':'oo','\u09C3':'ri','\u09C7':'e','\u09C8':'oi','\u09CB':'o','\u09CC':'ou'};
+const CON={'ক':'k','খ':'kh','গ':'g','ঘ':'gh','ঙ':'ng','চ':'ch','ছ':'chh','জ':'j','ঝ':'jh','ঞ':'n','ট':'t','ঠ':'th','ড':'d','ঢ':'dh','ণ':'n','ত':'t','থ':'th','দ':'d','ধ':'dh','ন':'n','প':'p','ফ':'ph','ব':'b','ভ':'bh','ম':'m','য':'j','র':'r','ল':'l','শ':'sh','ষ':'sh','স':'s','হ':'h','\u09DC':'r','\u09DD':'rh','\u09DF':'y','\u09CE':'t'};
+const RET={'ট':'ṭ','ঠ':'ṭh','ড':'ḍ','ঢ':'ḍh','ণ':'ṇ','শ':'ś','ষ':'ṣ','ঙ':'ṅ','ঞ':'ñ','\u09DC':'ṛ','\u09DD':'ṛh'};
+const KEEPO=new Set(['শুভ']);
+const dbl=t=>t==='sh'?'shsh':t[0]+t;
+const isC=c=>!!c&&((c>='\u0995'&&c<='\u09B9')||'\u09DC\u09DD\u09DF\u09CE'.includes(c));
+function cmap(c,nx){
+ const bn=S.mode==='bn';
+ if(S.retro&&RET[c])return RET[c];
+ if(c==='স')return bn&&!(nx&&'কখটঠতথপফ'.includes(nx))?'sh':'s';
+ return CON[c]
+}
+function rd(w,i){let c=w[i++];if(w[i]==='\u09BC'){const m={'ড':'\u09DC','ঢ':'\u09DD','য':'\u09DF'};if(m[c])c=m[c];i++}return[c,i]}
+function cluster(cons,first){
+ const bn=S.mode==='bn',P=[];
+ for(let k=0;k<cons.length;k++){
+  const c=cons[k],n=cons[k+1];
+  if(c==='ক'&&n==='ষ'){P.push(bn?(first&&!k?'kh':'kkh'):S.retro?'kṣ':'ksh');k++;if(bn&&cons[k+1]==='ম')k++;continue}
+  if(c==='জ'&&n==='ঞ'){P.push(bn?(first&&!k?'gy':'gg'):'gy');k++;continue}
+  if(bn&&!S.retro&&c==='ঙ'&&n==='গ'){P.push('ng');k++;continue}
+  if(bn&&c==='হ'&&(n==='ন'||n==='ম'||n==='ল')){P.push(cmap(n)+'h');k++;continue}
+  P.push(cmap(c,n))
+ }
+ let ya=false,g=false;const L=cons[cons.length-1];
+ if(P.length>1&&(L==='য'||L==='ব')&&cons[cons.length-2]!=='র'){
+  if(bn){P.pop();if(first&&P.length===1)ya=L==='য';else{const t=P[P.length-1];P[P.length-1]=dbl(t);g=true}}
+  else P[P.length-1]=L==='য'?'y':'w'
+ }
+ if(bn&&P.length>1&&L==='ম'&&'কগটডতদধ'.includes(cons[cons.length-2])){P.pop();P[P.length-1]=dbl(P[P.length-1]);g=true}
+ return{s:P.join(''),ya,g}
+}
+function word(w){
+ w=w.replace(/[\u200c\u200d]/g,'');
+ const keepO=S.mode==='bn'&&KEEPO.has(w);
+ const bn=S.mode==='bn',inh=bn?'o':'a',U=[];let i=0;
+ while(i<w.length){
+  const ch=w[i];
+  if(isC(ch)){
+   let c;[c,i]=rd(w,i);const cons=[c];let ex=c==='\u09CE';
+   while(w[i]==='\u09CD'){
+    if(isC(w[i+1])){[c,i]=rd(w,i+1);cons.push(c)}else{ex=true;i++;break}
+   }
+   let v=null;
+   if(!ex&&MAT[w[i]]){
+    v=MAT[w[i]];
+    if(w[i]==='\u09C7'&&w[i+1]==='\u09BE'){v='o';i++}
+    else if(w[i]==='\u09C7'&&w[i+1]==='\u09D7'){v='ou';i++}
+    i++
+   }
+   U.push({t:'C',cons,v,ex})
+  }else if(ch==='অ'&&w[i+1]==='\u09CD'&&w[i+2]==='য'&&w[i+3]==='\u09BE'){U.push({t:'V',s:bn?'ae':'ya'});i+=4}
+  else if(VOW[ch]){U.push({t:'V',s:ch==='অ'&&!bn?'a':VOW[ch]});i++}
+  else if(ch==='ং'){U.push({t:'X',s:S.retro?'ṃ':'ng'});i++}
+  else if(ch==='ঁ'){U.push({t:'X',s:'~'});i++}
+  else if(ch==='ঃ'){U.push({t:'H'});i++}
+  else if(ch>='\u09E6'&&ch<='\u09EF'){U.push({t:'X',s:String(ch.charCodeAt(0)-0x9E6)});i++}
+  else i++
+ }
+ let out='',gem=false;
+ U.forEach((u,k)=>{
+  if(u.t==='C'){
+   const r=cluster(u.cons,k===0);let s=r.s,v=u.v;
+   if(r.ya){if(v===null||v==='aa')v='ae';else s+='y'}
+   else if(v===null)v=u.ex?'':(k===U.length-1&&u.cons.length===1&&U.length>1&&!gem&&!keepO?'':inh);
+   if(gem){if(!r.g)s=dbl(s);gem=false}
+   out+=s+v
+  }else if(u.t==='H'){if(bn&&U[k+1]&&U[k+1].t==='C')gem=true;else out+=S.retro?'ḥ':'h'}
+  else out+=u.s
+ });
+ return out
+}
+const tr=t=>t.replace(/[\u0980-\u09FF\u200c\u200d]+/g,word).replace(/[\u0964\u0965]/g,'.');
+
+const inp=$('#inp'),out=$('#out');
+const upd=()=>{out.textContent=tr(inp.value)};
+const ins=t=>{const a=inp.selectionStart,b=inp.selectionEnd;inp.setRangeText(t,a,b,'end');inp.focus();upd()};
+const cell=(bn,r,h)=>{const b=document.createElement('button');b.className='cell';b.innerHTML='<span class="bn">'+bn+'</span><b>'+r+'</b>'+(h?'<i>'+h+'</i>':'');b.onclick=()=>ins(bn);return b};
+const fill=(id,arr)=>{const g=$(id);g.replaceChildren(...arr)};
+const VH={'অ':'hot / a','আ':'father','ই':'city','ঈ':'sheep','উ':'put','ঊ':'moon','ঋ':'ri','এ':'day','ঐ':'boy','ও':'go','ঔ':'house'};
+function ref(){
+ fill('#vow',Object.keys(VOW).map(c=>cell(c,tr(c),VH[c])).concat([cell('অ্যা',tr('অ্যা'),'cat')]));
+ fill('#mat',Object.keys(MAT).map(m=>cell('ক'+m,tr('ক'+m))));
+ const G='কখগঘঙচছজঝঞটঠডঢণতথদধনপফবভমযরলশষসহ'.split('').concat(['\u09DC','\u09DD','\u09DF','\u09CE']);
+ const sp={'ং':S.retro?'ṃ':'ng','ঃ':S.retro?'ḥ':'h','ঁ':'~'};
+ fill('#con',G.map(c=>cell(c,cmap(c))).concat(Object.keys(sp).map(c=>cell(c,sp[c]))));
+ const CJ=['রক্ষা','বিজ্ঞান','সত্য','বিশ্ব','স্টেশন','কষ্ট','দুঃখ','বন্ধ','সঙ্গ','ধন্যবাদ','অ্যাপ','ব্যবহার','স্বাধীন','কর্ম','চন্দ্র','প্রিয়','নিঃস্ব','সূর্য','সর্ব','চিহ্ন','পদ্ম','আত্মা'];
+ fill('#conj',CJ.map(c=>cell(c,tr(c))))
+}
+const EX=['আমি বাংলায় কথা বলি','ধন্যবাদ, ভালো থেকো','আমার সোনার বাংলা','তুমি কেমন আছ?','শুভ সকাল','ভালোবাসা'];
+fill('#ex',EX.map(t=>{const b=document.createElement('button');b.className='bn';b.textContent=t;b.onclick=()=>{inp.value=t;upd()};return b}));
+const setMode=m=>{S.mode=m;$('#mBn').setAttribute('aria-pressed',m==='bn');$('#mHi').setAttribute('aria-pressed',m==='hi');upd();ref()};
+$('#mBn').onclick=()=>setMode('bn');$('#mHi').onclick=()=>setMode('hi');
+$('#retro').onchange=e=>{S.retro=e.target.checked;upd();ref()};
+$('#clr').onclick=()=>{inp.value='';upd();inp.focus()};
+$('#cp').onclick=async e=>{try{await navigator.clipboard.writeText(out.textContent);e.target.textContent='Copied'}catch(_){e.target.textContent='Select and copy'}setTimeout(()=>e.target.textContent='Copy',1400)};
+inp.addEventListener('input',upd);
+inp.value='আমি বাংলায় কথা বলি';upd();ref();
+</script></body></html>
