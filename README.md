@@ -53,7 +53,7 @@ This is rule-based, with no dictionary, so it follows regular spelling-to-sound 
 ## Run locally
 
 ```bash
-git clone https://github.com/<your-username>/bangla-transliterator.git
+git clone https://github.com/<Deadpool477>/bangla-transliterator.git
 cd bangla-transliterator
 # then open index.html in your browser
 ```
@@ -65,7 +65,7 @@ The page loads fonts from Google Fonts. Offline, it falls back to your system's 
 1. Push the repo with `index.html` in the root.
 2. Go to **Settings → Pages**.
 3. Under **Branch**, choose `main` and `/ (root)`, then **Save**.
-4. After about a minute the page is live at `https://<your-username>.github.io/bangla-transliterator/`.
+4. After about a minute the page is live at `https://<Deadpool477>.github.io/bangla-transliterator/`.
 
 ## Contributing
 
